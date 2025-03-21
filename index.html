@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gift Box Game</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .balance-container {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #222;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .gift-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 50px;
+        }
+        .gift-box {
+            width: 250px;
+            text-align: center;
+        }
+        .gift-box img {
+            width: 100%;
+            cursor: pointer;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 5px;
+        }
+        .unlock-btn, .add-btn, .withdraw-btn {
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            border-radius: 5px;
+        }
+        .unlock-btn { background: red; }
+        .add-btn { background: green; }
+        .withdraw-btn { background: blue; position: fixed; top: 10px; right: 10px; }
+        .disabled { opacity: 0.5; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="balance-container">Bank Trnsfer: Rs. <span id="balance">0</span></div>
+    <button id="withdraw" class="withdraw-btn disabled">Withdraw</button>
+<br>
+<h1>Gift Box Open කර මුදල් උපයමු....</h1>
+<br>
+<p>01 මුලින්ම " Unlock " Button එක Click කර Box එක Unlock කරගන්න.. ( බටන් එක ක්ලීක් කරාම එන සයිට් එකේ තත්පර 20ක් සිටිම අනිවාර්යය වේ)</p>
+<p>02  ඉන්පසු " ත්‍යාගය " බටන් එක ක්ලීක් කර ඔබගේ මුදල් ත්‍යාගය එකතු කරගන්න ( Unlock බටන් එක ක්ලීක් නොකර ත්‍යාගය බටන් එක ක්ලීක් කිරිමට නොහැක)</p>
+<p>03 ඔබ උපයන මුදල් "My Balance" කොටුවේ පෙන්වයි</p>
+<p>04 අවම අගය රූ 1000 උන පසු "Bank Trnsfer " බටන් එල ක්ලීක් කර මුදල් බැංකූ ගිණුමටම ලබා ගත හැක (ඔබගේ මුදල 1000/= වන තුරු මේ බටන් එක ක්ලීක් කිරිමට නොහැක)</p>
+    <div class="gift-container" id="giftContainer"></div>
+    <script>
+        let balance = 0;
+        const giftContainer = document.getElementById("giftContainer");
+        const balanceElement = document.getElementById("balance");
+        const withdrawButton = document.getElementById("withdraw");
+        let clickedAddButtons = new Set();
+
+        const unlockLinks = [
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+           "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+             "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+           "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448", 
+             "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+              "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "https://earningskingdeliberately.com/a85ymayfk1?key=737762d010275ca38ed02f0677b63448",
+            "https://earningskingdeliberately.com/dwnimhqp?key=06cde9e1c486e7fdab453c774e818955", 
+            "https://earningskingdeliberately.com/pk17ndmx?key=693f841a5bf3dd81b0dc6a183ba85a77",
+            "https://earningskingdeliberately.com/inv0479j?key=dd31a730c4e66217402ec7d1de3d05ef", 
+            "https://earningskingdeliberately.com/ckdp2r7a?key=ed12b509d355613dc639e61dd75d6066", 
+            "ikman.lk"
+        ];
+
+        function updateBalance(amount) {
+            balance += amount;
+            balanceElement.textContent = balance;
+            if (balance >= 1000) {
+                withdrawButton.classList.remove("disabled");
+            }
+        }
+
+        function unlock(index) {
+            if (index < unlockLinks.length) {
+                window.open(`https://${unlockLinks[index]}`, "_blank");
+                document.getElementById(`add-${index}`).classList.remove("disabled");
+            }
+        }
+
+        function addMoney(index) {
+            if (!clickedAddButtons.has(index)) {
+                updateBalance(10);
+                alert("Congratulations! You've earned Rs. 10");
+                document.getElementById(`add-${index}`).classList.add("disabled");
+                clickedAddButtons.add(index);
+            }
+        }
+
+        function renderGifts() {
+            for (let i = 0; i < 100; i++) {
+                const giftBox = document.createElement("div");
+                giftBox.classList.add("gift-box");
+                giftBox.innerHTML = `
+                    <img src="https://media.istockphoto.com/id/184861239/photo/gift-box.jpg?s=612x612&w=0&k=20&c=p9NvAZOdJs4ziPaG-mZ9_CcAQqyyYISzBUe0yVqg_vM=" alt="Gift Box">
+                    <div class="button-container">
+                        <button class="unlock-btn" onclick="unlock(${i})">Unlock</button>
+                        <button id="add-${i}" class="add-btn disabled" onclick="addMoney(${i})">ත්‍යාගය</button>
+                    </div>
+                `;
+                giftContainer.appendChild(giftBox);
+            }
+        }
+
+        renderGifts();
+
+        withdrawButton.addEventListener("click", () => {
+            if (balance >= 1000) {
+                window.location.href = "#";
+            }
+        });
+    </script>
+</body>
+</html>
